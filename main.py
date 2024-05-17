@@ -196,6 +196,11 @@ class ConverterApp(QWidget):
         self.input_label.setText(f"Input File: {input_file}")
         self.input_file = input_file
 
+    def select_output_format(self, output_format):
+        print(f"Output format selected: {output_format}")
+        self.output_format = output_format.lower()
+        self.output_label.setText(f"Output Format: {output_format}")
+
 def main():
     app = QApplication(sys.argv)
     converter_app = ConverterApp()
