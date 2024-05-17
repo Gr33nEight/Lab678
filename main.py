@@ -1,70 +1,35 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QFileDialog
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
 import yaml
 import json
 import xml.etree.ElementTree as xml
 from functools import partial
 
 def load_json(input_file):
-    try:
-        with open(input_file, 'r') as file:
-            data = json.load(file)
-        return data
-    except Exception as e:
-        print(f"Nie można wczytać pliku JSON: {e}")
-        sys.exit(1)
+    with open(input_file, 'r') as file:
+        return json.load(file)
 
 def save_json(data, output_file):
-    try:
-        if isinstance(data, xml.Element):
-            data_dict = _xml_to_dict(data)
-            with open(output_file, 'w') as file:
-                json.dump(data_dict, file, indent=4)
-        else:
-            with open(output_file, 'w') as file:
-                json.dump(data, file, indent=4)
-        print(f"Dane zostały zapisane do pliku {output_file}")
-    except Exception as e:
-        print(f"Nie można zapisać danych do pliku JSON: {e}")
-        sys.exit(1)
+    with open(output_file, 'w') as file:
+        json.dump(data, file, indent=4)
 
 def load_yaml(input_file):
-    try:
-        with open(input_file, 'r') as file:
-            data = yaml.safe_load(file)
-        return data
-    except Exception as e:
-        print(f"Nie można wczytać pliku YAML: {e}")
-        sys.exit(1)
+    with open(input_file, 'r') as file:
+        return yaml.safe_load(file)
 
 def save_yaml(data, output_file):
-    try:
-        with open(output_file, 'w') as file:
-            yaml.dump(data, file, default_flow_style=False)
-        print(f"Dane zostały zapisane do pliku {output_file}")
-    except Exception as e:
-        print(f"Nie można zapisać danych do pliku YAML: {e}")
-        sys.exit(1)
+    with open(output_file, 'w') as file:
+        yaml.dump(data, file, default_flow_style=False)
 
 def load_xml(input_file):
-    try:
-        tree = xml.parse(input_file)
-        root = tree.getroot()
-        return root
-    except Exception as e:
-        print(f"Nie można wczytać pliku XML: {e}")
-        sys.exit(1)
+    tree = xml.parse(input_file)
+    return tree.getroot()
 
 def save_xml(data, output_file):
-    try:
-        with open(output_file, 'w') as file:
-            xml_string = xml.tostring(data).decode()
-            file.write(xml_string)
-        print(f"Dane zostały zapisane do pliku {output_file}")
-    except Exception as e:
-        print(f"Nie można zapisać danych do pliku XML: {e}")
-        sys.exit(1)
+    with open(output_file, 'w') as file:
+        xml_string = xml.tostring(data).decode()
+        file.write(xml_string)
 
 def _convert_to_xml_recursive(data, parent):
     if isinstance(data, dict):
@@ -78,26 +43,28 @@ def _convert_to_xml_recursive(data, parent):
         parent.text = str(data)
 
 def _xml_to_dict(element):
-    result = {}
-    for child in element:
-        if child is not None:
-            child_dict = _xml_to_dict(child)
-            if child.tag in result:
-                if isinstance(result[child.tag], list):
-                    result[child.tag].append(child_dict)
+    def _parse_element(element):
+        parsed = {}
+        for child in element:
+            if len(child):
+                if child.tag in parsed:
+                    if isinstance(parsed[child.tag], list):
+                        parsed[child.tag].append(_parse_element(child))
+                    else:
+                        parsed[child.tag] = [parsed[child.tag], _parse_element(child)]
                 else:
-                    result[child.tag] = [result[child.tag], child_dict]
+                    parsed[child.tag] = _parse_element(child)
             else:
-                result[child.tag] = child_dict
-        else:
-            if child.tag in result:
-                if isinstance(result[child.tag], list):
-                    result[child.tag].append(child.text)
+                if child.tag in parsed:
+                    if isinstance(parsed[child.tag], list):
+                        parsed[child.tag].append(child.text)
+                    else:
+                        parsed[child.tag] = [parsed[child.tag], child.text]
                 else:
-                    result[child.tag] = [result[child.tag], child.text]
-            else:
-                result[child.tag] = child.text
-    return result
+                    parsed[child.tag] = child.text
+        return parsed
+
+    return {element.tag: _parse_element(element)}
 
 def convert_logic(output_format, input_file, output_file):
     if input_file.endswith('.json'):
