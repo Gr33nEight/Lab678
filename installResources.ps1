@@ -3,6 +3,6 @@ pip install PyQt5
 pip install pyyaml
 pip install pyinstaller
 
-python -m PyInstaller --onefile main.py
+python -m PyInstaller --onefile --noconsole main.py
 
 
