@@ -161,7 +161,7 @@ class ConverterApp(QWidget):
         self.init_ui()
     def init_ui(self):
         layout = QVBoxLayout()
-        
+
         self.input_label = QLabel("Input File:")
         layout.addWidget(self.input_label)
 
@@ -189,6 +189,12 @@ class ConverterApp(QWidget):
         layout.addWidget(self.convert_button)
 
         self.setLayout(layout)
+
+    def select_input_file(self):
+        file_dialog = QFileDialog()
+        input_file, _ = file_dialog.getOpenFileName(self, "Select Input File", "", "All Files (*);;JSON Files (*.json);;YAML Files (*.yaml);;XML Files (*.xml)")
+        self.input_label.setText(f"Input File: {input_file}")
+        self.input_file = input_file
 
 def main():
     app = QApplication(sys.argv)
