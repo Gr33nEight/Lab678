@@ -161,6 +161,33 @@ class ConverterApp(QWidget):
         self.init_ui()
     def init_ui(self):
         layout = QVBoxLayout()
+        
+        self.input_label = QLabel("Input File:")
+        layout.addWidget(self.input_label)
+
+        self.input_button = QPushButton("Select Input File")
+        self.input_button.clicked.connect(self.select_input_file)
+        layout.addWidget(self.input_button)
+
+        self.output_label = QLabel("Output File:")
+        layout.addWidget(self.output_label)
+
+        self.json_button = QPushButton("JSON")
+        self.json_button.clicked.connect(partial(self.select_output_format, "JSON"))
+        layout.addWidget(self.json_button)
+
+        self.yaml_button = QPushButton("YAML")
+        self.yaml_button.clicked.connect(partial(self.select_output_format, "YAML"))
+        layout.addWidget(self.yaml_button)
+
+        self.xml_button = QPushButton("XML")
+        self.xml_button.clicked.connect(partial(self.select_output_format, "XML"))
+        layout.addWidget(self.xml_button)
+
+        self.convert_button = QPushButton("Convert")
+        self.convert_button.clicked.connect(self.convert_files)
+        layout.addWidget(self.convert_button)
+
         self.setLayout(layout)
 
 def main():
