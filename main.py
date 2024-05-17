@@ -1,4 +1,5 @@
 import sys
+import yaml
 import json
 
 def parse_arguments():
@@ -34,4 +35,13 @@ def load_yaml(input_file):
         return data
     except Exception as e:
         print(f"Nie można wczytać pliku YAML: {e}")
+        sys.exit(1)
+
+def save_yaml(data, output_file):
+    try:
+        with open(output_file, 'w') as file:
+            yaml.dump(data, file, default_flow_style=False)
+        print(f"Dane zostały zapisane do pliku {output_file}")
+    except Exception as e:
+        print(f"Nie można zapisać danych do pliku YAML: {e}")
         sys.exit(1)
