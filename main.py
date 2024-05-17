@@ -17,3 +17,12 @@ def load_json(input_file):
     except Exception as e:
         print(f"Nie można wczytać pliku JSON: {e}")
         sys.exit(1)
+
+def save_json(data, output_file):
+    try:
+        with open(output_file, 'w') as file:
+            json.dump(data, file, indent=4)
+        print(f"Dane zostały zapisane do pliku {output_file}")
+    except Exception as e:
+        print(f"Nie można zapisać danych do pliku JSON: {e}")
+        sys.exit(1)
