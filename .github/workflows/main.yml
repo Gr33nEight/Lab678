@@ -21,13 +21,9 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Install dependencies
+    - name: Install dependencies + Build
       run: |
         .\installResources.ps1
-
-    - name: Build .exe
-      run: |
-        pyinstaller.exe --onefile project.py
 
     - name: Upload .exe
       uses: actions/upload-artifact@v3
