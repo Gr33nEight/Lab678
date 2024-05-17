@@ -29,6 +29,37 @@ class FileLoaderThread(QThread):
         except Exception as e:
             self.error.emit(str(e))
 
+class FileSaverThread(QThread):
+    success = pyqtSignal(str)
+    error = pyqtSignal(str)
+
+    def __init__(self, data, output_file, output_format):
+        super().__init__()
+        self.data = data
+        self.output_file = output_file
+        self.output_format = output_format
+
+    def run(self):
+        try:
+            if self.output_format == 'json':
+                if isinstance(self.data, xml.Element):
+                    data_dict = _xml_to_dict(self.data)
+                    save_json(data_dict, self.output_file)
+                else:
+                    save_json(self.data, self.output_file)
+            elif self.output_format == 'yaml':
+                save_yaml(self.data, self.output_file)
+            elif self.output_format == 'xml':
+                root = xml.Element("data")
+                _convert_to_xml_recursive(self.data, root)
+                save_xml(root, self.output_file)
+            else:
+                self.error.emit("Nieobsługiwany format pliku wyjściowego.")
+                return
+            self.success.emit(f"Dane zostały zapisane do pliku {self.output_file}")
+        except Exception as e:
+            self.error.emit(str(e))
+
 def load_json(input_file):
     with open(input_file, 'r') as file:
         return json.load(file)
