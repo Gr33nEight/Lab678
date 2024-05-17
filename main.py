@@ -1,10 +1,10 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QFileDialog
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtGui import QIcon
 import json
 import yaml
 import xml.etree.ElementTree as xml
-from functools import partial
 
 class FileLoaderThread(QThread):
     data_loaded = pyqtSignal(object)
@@ -128,35 +128,45 @@ class ConverterApp(QWidget):
         self.data = None
 
     def init_ui(self):
-        layout = QVBoxLayout()
+        self.setWindowTitle("File Converter")
+        self.resize(800, 600)
+        self.setStyleSheet("background-color: #151515")
 
-        self.input_label = QLabel("Input File:")
+        layout = QVBoxLayout(self)
+        
+        self.input_label = QLabel("Input File:", self)
+        self.input_label.setStyleSheet("color: #EEEEEE; font-size: 16px; font-weight: bold; font-family: sans-serif;")
         layout.addWidget(self.input_label)
 
-        self.input_button = QPushButton("Select Input File")
+        self.input_button = QPushButton("Select Input File", self)
+        self.input_button.setStyleSheet("color: #EEEEEE; border: 2px solid #A91D3A; border-radius: 8px; padding: 10px 20px; text-align: center; text-decoration: none; font-size: 16px; margin: 4px 2px; font-family: sans-serif;")
         self.input_button.clicked.connect(self.select_input_file)
         layout.addWidget(self.input_button)
 
-        self.output_label = QLabel("Output File:")
+        self.output_label = QLabel("Output File:", self)
+        self.output_label.setStyleSheet("color: #EEEEEE; font-size: 16px; font-weight: bold; font-family: sans-serif;")
         layout.addWidget(self.output_label)
 
-        self.json_button = QPushButton("JSON")
-        self.json_button.clicked.connect(partial(self.select_output_format, "JSON"))
+        self.json_button = QPushButton("JSON", self)
+        self.json_button.setStyleSheet("color: #EEEEEE; border: 2px solid #A91D3A; border-radius: 8px; padding: 10px 20px; text-align: center; text-decoration: none; font-size: 16px; margin: 4px 2px; font-family: sans-serif;")
+        self.json_button.clicked.connect(lambda: self.select_output_format("JSON"))
         layout.addWidget(self.json_button)
 
-        self.yaml_button = QPushButton("YAML")
-        self.yaml_button.clicked.connect(partial(self.select_output_format, "YAML"))
+        self.yaml_button = QPushButton("YAML", self)
+        self.yaml_button.setStyleSheet("color: #EEEEEE; border: 2px solid #A91D3A; border-radius: 8px; padding: 10px 20px; text-align: center; text-decoration: none; font-size: 16px; margin: 4px 2px; font-family: sans-serif;")
+        self.yaml_button.clicked.connect(lambda: self.select_output_format("YAML"))
         layout.addWidget(self.yaml_button)
 
-        self.xml_button = QPushButton("XML")
-        self.xml_button.clicked.connect(partial(self.select_output_format, "XML"))
+        self.xml_button = QPushButton("XML", self)
+        self.xml_button.setStyleSheet("color: #EEEEEE; border: 2px solid #A91D3A; border-radius: 8px; padding: 10px 20px; text-align: center; text-decoration: none; font-size: 16px; margin: 4px 2px; font-family: sans-serif;")
+        self.xml_button.clicked.connect(lambda: self.select_output_format("XML"))
         layout.addWidget(self.xml_button)
 
-        self.convert_button = QPushButton("Convert")
+        self.convert_button = QPushButton("Convert", self)
+        self.convert_button.setStyleSheet("background-color: #C73659; color: #EEEEEE; border: none; padding: 10px 20px; text-align: center; text-decoration: none; font-size: 16px; margin: 4px 2px; margin-top: 16px; border-radius: 8px; font-family: sans-serif;")
         self.convert_button.clicked.connect(self.convert_files)
+        
         layout.addWidget(self.convert_button)
-
-        self.setLayout(layout)
 
     def select_input_file(self):
         file_dialog = QFileDialog()
