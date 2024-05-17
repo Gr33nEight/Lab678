@@ -26,3 +26,12 @@ def save_json(data, output_file):
     except Exception as e:
         print(f"Nie można zapisać danych do pliku JSON: {e}")
         sys.exit(1)
+
+def load_yaml(input_file):
+    try:
+        with open(input_file, 'r') as file:
+            data = yaml.safe_load(file)
+        return data
+    except Exception as e:
+        print(f"Nie można wczytać pliku YAML: {e}")
+        sys.exit(1)
