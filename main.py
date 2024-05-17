@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 import yaml
 import json
 import xml.etree.ElementTree as xml
-
+from functools import partial
 
 def load_json(input_file):
     try:
