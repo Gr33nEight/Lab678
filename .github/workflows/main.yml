@@ -23,7 +23,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt
+        .\installResources.ps1
 
     - name: Build .exe
       run: |
