@@ -1,4 +1,6 @@
 import sys
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QFileDialog
+from PyQt5.QtCore import Qt
 import yaml
 import json
 import xml.etree.ElementTree as xml
@@ -104,42 +106,69 @@ def _xml_to_dict(element):
                 result[child.tag] = child.text
     return result
 
-def main():
-    input_file, output_file = parse_arguments()
+def convert_logic(output_format, input_file, output_file):
     if input_file.endswith('.json'):
-        data = load_json(input_file)
-        if output_file.endswith('.yaml'):
-            save_yaml(data, output_file) 
-        elif output_file.endswith('.xml'):
+        if output_format.lower() == 'json':
+            data = load_json(input_file)
+            save_json(data, output_file)
+        elif output_format.lower() == 'yaml':
+            data = load_json(input_file)
+            save_yaml(data, output_file)
+        elif output_format.lower() == 'xml':
+            data = load_json(input_file)
             root = xml.Element("data")
             _convert_to_xml_recursive(data, root)
-            save_xml(root, output_file) 
+            save_xml(root, output_file)
         else:
             print("Nieobsługiwany format pliku wyjściowego.")
             sys.exit(1)
     elif input_file.endswith('.yaml'):
-        data = load_yaml(input_file)
-        if output_file.endswith('.json'):
+        if output_format.lower() == 'json':
+            data = load_yaml(input_file)
             save_json(data, output_file)
-        elif output_file.endswith('.xml'):
+        elif output_format.lower() == 'yaml':
+            data = load_yaml(input_file)
+            save_yaml(data, output_file)
+        elif output_format.lower() == 'xml':
+            data = load_yaml(input_file)
             root = xml.Element("data")
             _convert_to_xml_recursive(data, root)
-            save_xml(root, output_file) 
+            save_xml(root, output_file)
         else:
             print("Nieobsługiwany format pliku wyjściowego.")
             sys.exit(1)
     elif input_file.endswith('.xml'):
-        data = load_xml(input_file)
-        if output_file.endswith('.json'):
+        if output_format.lower() == 'json':
+            data = load_xml(input_file)
             save_json(data, output_file)
-        elif output_file.endswith('.yaml'):
+        elif output_format.lower() == 'yaml':
+            data = load_xml(input_file)
             save_yaml(data, output_file)
+        elif output_format.lower() == 'xml':
+            data = load_xml(input_file)
+            save_xml(data, output_file)
         else:
             print("Nieobsługiwany format pliku wyjściowego.")
             sys.exit(1)
     else:
         print("Nieobsługiwany format pliku wejściowego.")
         sys.exit(1)
+
+class ConverterApp(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("File Converter")
+        self.init_ui()
+    def init_ui(self):
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
+def main():
+    app = QApplication(sys.argv)
+    converter_app = ConverterApp()
+    converter_app.show()
+    sys.exit(app.exec_())
+
 
 if __name__ == "__main__":
     main()
