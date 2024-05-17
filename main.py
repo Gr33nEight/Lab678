@@ -1,8 +1,8 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QFileDialog
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
-import yaml
 import json
+import yaml
 import xml.etree.ElementTree as xml
 from functools import partial
 
