@@ -1,6 +1,7 @@
 import sys
 import yaml
 import json
+import xml.etree.ElementTree as xml
 
 def parse_arguments():
     if len(sys.argv) != 3:
@@ -44,4 +45,14 @@ def save_yaml(data, output_file):
         print(f"Dane zostały zapisane do pliku {output_file}")
     except Exception as e:
         print(f"Nie można zapisać danych do pliku YAML: {e}")
+        sys.exit(1)
+
+def save_xml(data, output_file):
+    try:
+        with open(output_file, 'w') as file:
+            xml_string = xml.tostring(data).decode()
+            file.write(xml_string)
+        print(f"Dane zostały zapisane do pliku {output_file}")
+    except Exception as e:
+        print(f"Nie można zapisać danych do pliku XML: {e}")
         sys.exit(1)
