@@ -1,0 +1,34 @@
+name: Build and Upload
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: 
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Build .exe
+      run: |
+        pyinstaller.exe --onefile project.py
+
+    - name: Upload .exe
+      uses: actions/upload-artifact@v3
+      with:
+        name: exe-artifact
+        path: dist/project.exe
