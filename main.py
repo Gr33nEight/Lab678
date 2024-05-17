@@ -6,6 +6,29 @@ import json
 import xml.etree.ElementTree as xml
 from functools import partial
 
+class FileLoaderThread(QThread):
+    data_loaded = pyqtSignal(object)
+    error = pyqtSignal(str)
+
+    def __init__(self, input_file):
+        super().__init__()
+        self.input_file = input_file
+
+    def run(self):
+        try:
+            if self.input_file.endswith('.json'):
+                data = load_json(self.input_file)
+            elif self.input_file.endswith('.yaml'):
+                data = load_yaml(self.input_file)
+            elif self.input_file.endswith('.xml'):
+                data = load_xml(self.input_file)
+            else:
+                self.error.emit("Nieobsługiwany format pliku wejściowego.")
+                return
+            self.data_loaded.emit(data)
+        except Exception as e:
+            self.error.emit(str(e))
+
 def load_json(input_file):
     with open(input_file, 'r') as file:
         return json.load(file)
