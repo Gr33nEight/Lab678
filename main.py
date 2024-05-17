@@ -120,59 +120,13 @@ def _xml_to_dict(element):
 
     return {element.tag: _parse_element(element)}
 
-def convert_logic(output_format, input_file, output_file):
-    if input_file.endswith('.json'):
-        if output_format.lower() == 'json':
-            data = load_json(input_file)
-            save_json(data, output_file)
-        elif output_format.lower() == 'yaml':
-            data = load_json(input_file)
-            save_yaml(data, output_file)
-        elif output_format.lower() == 'xml':
-            data = load_json(input_file)
-            root = xml.Element("data")
-            _convert_to_xml_recursive(data, root)
-            save_xml(root, output_file)
-        else:
-            print("Nieobsługiwany format pliku wyjściowego.")
-            sys.exit(1)
-    elif input_file.endswith('.yaml'):
-        if output_format.lower() == 'json':
-            data = load_yaml(input_file)
-            save_json(data, output_file)
-        elif output_format.lower() == 'yaml':
-            data = load_yaml(input_file)
-            save_yaml(data, output_file)
-        elif output_format.lower() == 'xml':
-            data = load_yaml(input_file)
-            root = xml.Element("data")
-            _convert_to_xml_recursive(data, root)
-            save_xml(root, output_file)
-        else:
-            print("Nieobsługiwany format pliku wyjściowego.")
-            sys.exit(1)
-    elif input_file.endswith('.xml'):
-        if output_format.lower() == 'json':
-            data = load_xml(input_file)
-            save_json(data, output_file)
-        elif output_format.lower() == 'yaml':
-            data = load_xml(input_file)
-            save_yaml(data, output_file)
-        elif output_format.lower() == 'xml':
-            data = load_xml(input_file)
-            save_xml(data, output_file)
-        else:
-            print("Nieobsługiwany format pliku wyjściowego.")
-            sys.exit(1)
-    else:
-        print("Nieobsługiwany format pliku wejściowego.")
-        sys.exit(1)
-
 class ConverterApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("File Converter")
         self.init_ui()
+        self.data = None
+
     def init_ui(self):
         layout = QVBoxLayout()
 
@@ -236,24 +190,26 @@ class ConverterApp(QWidget):
         if not output_file:
             print("Nie wybrano pliku wyjściowego.")
             return
-        
-        filename_parts = output_file.split('.')
-        if len(filename_parts) > 1:
-            output_file = '.'.join(filename_parts[:-1])
 
-        if not output_file.endswith(tuple(selected_filter.split()[-2:])):
-            output_file += f".{output_format.lower()}"
-        
-        print(f"Output_format { output_format }, input_file { input_file }, output_file { output_file }")
-        convert_logic(output_format, input_file, output_file)
-        print(f"Konwertowanie {input_file} do {output_file}")
+        self.load_file(input_file, output_format, output_file)
+
+    def load_file(self, input_file, output_format, output_file):
+        self.loader_thread = FileLoaderThread(input_file)
+        self.loader_thread.data_loaded.connect(lambda data: self.save_file(data, output_format, output_file))
+        self.loader_thread.error.connect(lambda error: print(f"Error loading file: {error}"))
+        self.loader_thread.start()
+
+    def save_file(self, data, output_format, output_file):
+        self.saver_thread = FileSaverThread(data, output_file, output_format)
+        self.saver_thread.success.connect(lambda message: print(message))
+        self.saver_thread.error.connect(lambda error: print(f"Error saving file: {error}"))
+        self.saver_thread.start()
 
 def main():
     app = QApplication(sys.argv)
     converter_app = ConverterApp()
     converter_app.show()
     sys.exit(app.exec_())
-
 
 if __name__ == "__main__":
     main()
