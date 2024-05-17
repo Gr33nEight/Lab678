@@ -47,6 +47,15 @@ def save_yaml(data, output_file):
         print(f"Nie można zapisać danych do pliku YAML: {e}")
         sys.exit(1)
 
+def load_xml(input_file):
+    try:
+        tree = xml.parse(input_file)
+        root = tree.getroot()
+        return root
+    except Exception as e:
+        print(f"Nie można wczytać pliku XML: {e}")
+        sys.exit(1)
+
 def save_xml(data, output_file):
     try:
         with open(output_file, 'w') as file:
