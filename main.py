@@ -22,8 +22,13 @@ def load_json(input_file):
 
 def save_json(data, output_file):
     try:
-        with open(output_file, 'w') as file:
-            json.dump(data, file, indent=4)
+        if isinstance(data, xml.Element):
+            data_dict = _xml_to_dict(data)
+            with open(output_file, 'w') as file:
+                json.dump(data_dict, file, indent=4)
+        else:
+            with open(output_file, 'w') as file:
+                json.dump(data, file, indent=4)
         print(f"Dane zostały zapisane do pliku {output_file}")
     except Exception as e:
         print(f"Nie można zapisać danych do pliku JSON: {e}")
@@ -65,3 +70,76 @@ def save_xml(data, output_file):
     except Exception as e:
         print(f"Nie można zapisać danych do pliku XML: {e}")
         sys.exit(1)
+
+def _convert_to_xml_recursive(data, parent):
+    if isinstance(data, dict):
+        for key, value in data.items():
+            element = xml.SubElement(parent, key)
+            _convert_to_xml_recursive(value, element)
+    elif isinstance(data, list):
+        for item in data:
+            _convert_to_xml_recursive(item, parent)
+    else:
+        parent.text = str(data)
+
+def _xml_to_dict(element):
+    result = {}
+    for child in element:
+        if child is not None:
+            child_dict = _xml_to_dict(child)
+            if child.tag in result:
+                if isinstance(result[child.tag], list):
+                    result[child.tag].append(child_dict)
+                else:
+                    result[child.tag] = [result[child.tag], child_dict]
+            else:
+                result[child.tag] = child_dict
+        else:
+            if child.tag in result:
+                if isinstance(result[child.tag], list):
+                    result[child.tag].append(child.text)
+                else:
+                    result[child.tag] = [result[child.tag], child.text]
+            else:
+                result[child.tag] = child.text
+    return result
+
+def main():
+    input_file, output_file = parse_arguments()
+    if input_file.endswith('.json'):
+        data = load_json(input_file)
+        if output_file.endswith('.yaml'):
+            save_yaml(data, output_file) 
+        elif output_file.endswith('.xml'):
+            root = xml.Element("data")
+            _convert_to_xml_recursive(data, root)
+            save_xml(root, output_file) 
+        else:
+            print("Nieobsługiwany format pliku wyjściowego.")
+            sys.exit(1)
+    elif input_file.endswith('.yaml'):
+        data = load_yaml(input_file)
+        if output_file.endswith('.json'):
+            save_json(data, output_file)
+        elif output_file.endswith('.xml'):
+            root = xml.Element("data")
+            _convert_to_xml_recursive(data, root)
+            save_xml(root, output_file) 
+        else:
+            print("Nieobsługiwany format pliku wyjściowego.")
+            sys.exit(1)
+    elif input_file.endswith('.xml'):
+        data = load_xml(input_file)
+        if output_file.endswith('.json'):
+            save_json(data, output_file)
+        elif output_file.endswith('.yaml'):
+            save_yaml(data, output_file)
+        else:
+            print("Nieobsługiwany format pliku wyjściowego.")
+            sys.exit(1)
+    else:
+        print("Nieobsługiwany format pliku wejściowego.")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
