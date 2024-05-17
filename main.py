@@ -201,6 +201,39 @@ class ConverterApp(QWidget):
         self.output_format = output_format.lower()
         self.output_label.setText(f"Output Format: {output_format}")
 
+    def convert_files(self):
+        input_file = getattr(self, 'input_file', None)
+        output_format = getattr(self, 'output_format', None)
+        
+        if not input_file or not output_format:
+            print("Nie wybrano pliku wejściowego lub formatu wyjściowego.")
+            return
+        
+        file_dialog = QFileDialog()
+        file_filters = {
+            "json": "JSON Files (*.json)",
+            "yaml": "YAML Files (*.yaml)",
+            "xml": "XML Files (*.xml)"
+        }
+        
+        selected_filter = file_filters.get(output_format.lower())
+        output_file, _ = file_dialog.getSaveFileName(self, "Select Output File", "", selected_filter)
+        
+        if not output_file:
+            print("Nie wybrano pliku wyjściowego.")
+            return
+        
+        filename_parts = output_file.split('.')
+        if len(filename_parts) > 1:
+            output_file = '.'.join(filename_parts[:-1])
+
+        if not output_file.endswith(tuple(selected_filter.split()[-2:])):
+            output_file += f".{output_format.lower()}"
+        
+        print(f"Output_format { output_format }, input_file { input_file }, output_file { output_file }")
+        convert_logic(output_format, input_file, output_file)
+        print(f"Konwertowanie {input_file} do {output_file}")
+
 def main():
     app = QApplication(sys.argv)
     converter_app = ConverterApp()
